@@ -1,0 +1,14 @@
+﻿@model List<SomeCompany.Shared.Artist>
+
+@{
+    ViewBag.Title = "Result";
+}
+
+<h3>Select an Artist</h3>
+@using (Html.BeginForm("Recommendation", "Home", FormMethod.Post))
+{
+    foreach (var item in Model)
+    {
+        <p><a href="@Url.Action("Recommendation", "Home", new { id = item.Id})" class="btn btn-success">@item.Name</a></p>
+    }
+}

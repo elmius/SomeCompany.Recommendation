@@ -1,0 +1,74 @@
+﻿@using SomeCompany.Shared
+
+@model SomeCompany.Recommendation.Models.FilterViewModel
+
+@{
+    ViewBag.Title = "Home Page";
+}
+
+<div class="jumbotron">
+    <h1 class="text-center">Music Recommendations</h1>
+    <p class="lead text-center">Get music suggestions by using the search below</p>
+    <div class="card border-light mb-3">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-4">
+                    <label class="col-form-label">
+                        @Html.DisplayNameFor(model => model.Artist)
+                    </label>
+                    <div>
+                        <span class="form-inline my-2 my-lg-0">
+                            @Html.TextBoxFor(model => model.Artist, new { @class = "form-control", id="artist-name" })
+                            <button type="submit" class="btn btn-success float-right" id="SearchButton">Go</button>
+                        </span>
+                    </div>        
+                </div>
+                <div class="col-4">
+                    <div id='loadingDiv'>
+                        Please wait... <img src='~/Content/Images/SpinningRecord.gif' width="120"/>
+                    </div>
+                </div> 
+                <div class="col-4">
+                    <div id="search-result"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#loadingDiv').hide();
+            $(document).on("click", "#SearchButton", function (e) {
+                var search = document.getElementById('artist-name').value;
+                $(this).hide();
+                $.ajax({
+                    type: "POST",
+                    url: "home/getartist",
+                    data: '{artist: "' + search + '" }',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "html",
+                    success: OnSuccess,
+                    failure: function(response) {
+                        alert(response.d);
+                    }
+                });
+                $('#loadingDiv').show();
+            });
+            $(document).on("click", "#artist-name", function (e) {
+                this.value = "";
+                $('#SearchButton').show();
+            });
+        });
+
+        function OnSuccess(response) {
+            $('#loadingDiv').hide();
+            if (response != null) {
+                $('#search-result').html(response);
+            }
+        }
+    </script>
+}
+
+    

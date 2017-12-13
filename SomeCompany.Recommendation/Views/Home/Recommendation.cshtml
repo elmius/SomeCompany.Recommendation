@@ -1,0 +1,101 @@
+﻿@model SomeCompany.Recommendation.Models.ResultViewModel
+
+@{
+    ViewBag.Title = "Home Page";
+}
+
+<div class="jumbotron">
+    <h1 class="text-center">Music Recommendations</h1>
+    <p class="lead text-center">The Suggestions below might make your day.</p>
+    <div class="card border-light mb-3">
+        <div class="card-body">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-3">
+                        <a href="javascript:history.back()" class="btn btn-success btn-lg float-left">Back</a>
+                    </div>
+                    <div class="col-sm-9">
+                        @if (Model.Genre.Any())
+                        {
+                            <p>Toggle the genres and click on an artist to load Spotify.</p>
+                            foreach (var item in Model.Genre)
+                            {
+                                <span id="@item" class="badge badge-success">@Html.DisplayFor(i => item)</span>
+                            }
+                        }
+                        else if (Model.Suggestions.Any())
+                        {
+                            <p>Click on an artist to load Spotify.</p>
+                        }
+                        else
+                        {
+                            <p>Sorry, but no relative artists where found.</p>
+                        }
+                    </div>
+                </div>
+                <div class="row mt-5">
+                    @foreach (var item in Model.Suggestions)
+                    {
+                        <div class="col-sm-3 suggestion-box" data-genres="@item.GenresAsString">
+                            <a href="@item.Uri" title="@item.Name">
+                                <div class="text-center">
+                                    <h4>@Html.DisplayFor(i => item.Name)</h4>
+                                </div>
+                                <div class="text-center">
+                                    @if (item.ImageObjects.Any())
+                                    {
+                                        <img src="@item.ImageObjects.FirstOrDefault().Url" alt="@item.Name" width="80" height="80"/>
+                                    }
+                                    else
+                                    {
+                                        <img src="~/Content/Images/no-image.png" alt="@item.Name" width="80" height="80" />
+                                    }
+                                </div>
+                                <div class="text-center">
+                                    Popularity: @Html.Raw(item.Popularity.Value.ToString())
+                                </div>
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            var genres = [];
+
+            $(".badge").click(function () {
+                var genre = $(this).attr('id');
+                var className = $(this).attr('class');
+
+                if (className === 'badge badge-success') {
+                    $(this).removeClass("badge-success");
+                    $(this).addClass(" badge-warning");
+                    genres.push(genre);
+                }
+
+                if (className === 'badge badge-warning') {
+                    $(this).removeClass("badge-warning");
+                    $(this).addClass(" badge-success");
+                    genres.pop(genre);
+                }
+
+                var divs = $("div").find("[data-genres]");
+
+                $(divs).each(function () {
+                    var artistGenres = $(this).attr('data-genres').split(',');
+                    var anyMatch = artistGenres.some(r => genres.indexOf(r) >= 0);
+                    if (anyMatch)
+                        $(this).hide();
+                    else
+                        $(this).show();
+                });
+            });
+        });
+    </script>
+}
